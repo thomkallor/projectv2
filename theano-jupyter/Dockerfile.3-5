@@ -5,7 +5,7 @@ ARG TENSORFLOW_VERSION=1.2.1
 ARG TENSORFLOW_ARCH=gpu
 ARG KERAS_VERSION=1.0.8
 ARG CAFFE_VERSION=master
-ARG ANACONDA_VERSION=Miniconda3-4.2.12
+ARG ANACONDA_VERSION=Miniconda3-4.3.30
 
 ## remove broken cuda links 
 RUN rm /etc/apt/sources.list.d/cuda.list && \
