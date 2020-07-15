@@ -104,8 +104,8 @@ RUN conda install -c bnoon leveldb=1.15
 RUN git clone https://github.com/BVLC/caffe.git /usr/local/caffe
 
 RUN cd /usr/local/caffe && mkdir build && cd build && \
-	cmake -DPYTHON_INCLUDE_DIR=/usr/local/miniconda3/include/python3.5m \
-	-DPYTHON_LIBRARY=/usr/local/miniconda3/lib/libpython3.5m.so \
+	cmake -DPYTHON_INCLUDE_DIR=/usr/local/miniconda3/envs/caffe/include/python3.5m \
+	-DPYTHON_LIBRARY=/usr/local/miniconda3/envs/caffe/lib/libpython3.5m.so \
 	-Dpython_version=3 \
 	-DUSE_CUDNN=1 \
 	-DBLAS=Open \
