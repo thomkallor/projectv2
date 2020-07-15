@@ -17,9 +17,9 @@ RUN apt-get update && apt-get install -y \
     wget
 
 RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
-    && bash Miniconda3-latest-Linux-x86_64.sh -b \
+    && bash Miniconda3-latest-Linux-x86_64.sh -b -p /usr/local/miniconda3\
     && rm -f Miniconda3-latest-Linux-x86_64.sh
-ENV PATH="/root/miniconda3/bin:${PATH}"
+ENV PATH="/usr/local/miniconda3/bin:${PATH}"
 
 RUN python -m pip install https://storage.googleapis.com/tensorflow/linux/${TENSORFLOW_ARCH}/tensorflow_${TENSORFLOW_ARCH}-${TENSORFLOW_VERSION}-cp37-cp37m-manylinux2010_x86_64.whl
 RUN conda install -c pytorch torchvision pytorch
@@ -63,28 +63,28 @@ ENV CONDA_DEFAULT_ENV caffe
 RUN conda install cython cmake
 RUN conda install -c intel mkl boost=1.61.0 glog gflags=2.1
 RUN conda install -c conda-forge protobuf=3.2.0 hdf5 openblas lmdb
-RUN conda install msgpack python-dateutil pytest scikit-image
+RUN pip install msgpack python-dateutil pytest scikit-image
 RUN conda install -c mvn libsnappy
 ## install opencv3 caffe doesnot support opencv 4
 RUN conda install -c menpo opencv3
 
 RUN conda install -c bnoon leveldb=1.15
 
-RUN git clone https://github.com/BVLC/caffe.git /root/caffe
+RUN git clone https://github.com/BVLC/caffe.git /usr/local/caffe
 
-RUN cd /root/caffe && mkdir build && cd build && \
-	cmake -DPYTHON_INCLUDE_DIR=/root/miniconda3/envs/caffe/include/python3.5m \
-	-DPYTHON_INCLUDE_DIR2=/root/miniconda3/envs/caffe/include/python3.5m \
-	-DPYTHON_LIBRARY=/root/miniconda3/envs/caffe/lib/libpython3.5m.so \
+RUN bin/bash -c 'source activate caffe && cd /usr/local/caffe && mkdir build && cd build && \
+	cmake -DPYTHON_INCLUDE_DIR=/usr/local/miniconda3/envs/caffe/include/python3.5m \
+	-DPYTHON_INCLUDE_DIR2=/usr/local/miniconda3/envs/caffe/include/python3.5m \
+	-DPYTHON_LIBRARY=/usr/local/miniconda3/envs/caffe/lib/libpython3.5m.so \
 	-Dpython_version=3 \
 	-DUSE_CUDNN=1 \
 	-DBLAS=Open \
 	..  && \
 	make -j"$(nproc)" all && \
-	make install
+	make install'
 
 # Set up Caffe environment variables
-ENV CAFFE_ROOT=/root/caffe
+ENV CAFFE_ROOT=/usr/local/caffe
 ENV PYCAFFE_ROOT=$CAFFE_ROOT/python
 ENV PYTHONPATH=$PYCAFFE_ROOT:$PYTHONPATH \
 	PATH=$CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
