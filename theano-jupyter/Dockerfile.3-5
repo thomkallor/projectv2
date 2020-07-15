@@ -92,7 +92,7 @@ RUN rm libcudnn6_6.0.21-1+cuda8.0_amd64.deb && \
 
 ## new environment for caffe
 RUN conda create -n caffe python=3.5
-SHELL ["conda", "run", "-n", "caffe", "/bin/bash", "-c"]
+ENV CONDA_DEFAULT_ENV=caffe
 RUN conda env list
 RUN conda install cython cmake
 RUN conda install -c intel mkl boost=1.61.0 glog gflags=2.1
@@ -123,6 +123,7 @@ ENV PYTHONPATH=$PYCAFFE_ROOT:$PYTHONPATH \
 	PATH=$CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
 RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
 
+ENV CONDA_DEFAULT_ENV base
 # Set up notebook config
 COPY jupyter_notebook_config.py /root/.jupyter/
 
