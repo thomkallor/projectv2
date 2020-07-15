@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y \
 # see https://docs.anaconda.com/anaconda/packages/oldpkglists/ to get compatibility with python x.x versions
 # see https://repo.anaconda.com/miniconda/
 RUN wget https://repo.anaconda.com/miniconda/${ANACONDA_VERSION}-Linux-x86_64.sh \
-    && bash ${ANACONDA_VERSION}-Linux-x86_64.sh -b -p /usr/local\
+    && bash ${ANACONDA_VERSION}-Linux-x86_64.sh -b -p /usr/local/miniconda3\
     && rm -f ${ANACONDA_VERSION}-Linux-x86_64.sh
 ENV PATH="/usr/local/miniconda3/bin:${PATH}"
 
