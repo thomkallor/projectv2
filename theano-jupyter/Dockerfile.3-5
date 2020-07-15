@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y \
 # see https://docs.anaconda.com/anaconda/packages/oldpkglists/ to get compatibility with python x.x versions
 # see https://repo.anaconda.com/miniconda/
 RUN wget https://repo.anaconda.com/miniconda/${ANACONDA_VERSION}-Linux-x86_64.sh \
-    && bash ${ANACONDA_VERSION}-Linux-x86_64.sh -b -p /usr/local/miniconda3\
+    && bash ${ANACONDA_VERSION}-Linux-x86_64.sh -b -p /usr/local/miniconda3 \
     && rm -f ${ANACONDA_VERSION}-Linux-x86_64.sh
 ENV PATH="/usr/local/miniconda3/bin:${PATH}"
 
@@ -89,19 +89,17 @@ RUN apt-get update && apt-get install -y libcudnn6-dev
 RUN rm libcudnn6_6.0.21-1+cuda8.0_amd64.deb && \
 	rm libcudnn6-dev_6.0.21-1+cuda8.0_amd64.deb
 
-
+RUN conda install msgpack python-dateutil scikit-image
 ## new environment for caffe
 RUN conda create -n caffe python=3.5
 ENV CONDA_DEFAULT_ENV=caffe
 RUN conda env list
-RUN conda install cython cmake
+RUN conda install cython cmake pytest
 RUN conda install -c intel mkl boost=1.61.0 glog gflags=2.1
 RUN conda install -c conda-forge protobuf=3.2.0 hdf5 openblas lmdb
-RUN conda install msgpack python-dateutil pytest scikit-image
 RUN conda install -c mvn libsnappy
 ## install opencv3 caffe doesnot support opencv 4
 RUN conda install -c menpo opencv3
-
 RUN conda install -c bnoon leveldb=1.15
 
 RUN git clone https://github.com/BVLC/caffe.git /usr/local/caffe
@@ -125,10 +123,10 @@ RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
 
 ENV CONDA_DEFAULT_ENV base
 # Set up notebook config
-COPY jupyter_notebook_config.py /root/.jupyter/
+# COPY jupyter_notebook_config.py /usr/local/.jupyter/
 
-# Jupyter has issues with being run directly: https://github.com/ipython/ipython/issues/7062
-COPY run_jupyter.sh /root/
+# # Jupyter has issues with being run directly: https://github.com/ipython/ipython/issues/7062
+# COPY run_jupyter.sh /usr/local/
 
 RUN mkdir .keras
 COPY keras.json /.keras
