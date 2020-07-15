@@ -97,8 +97,8 @@ RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 75 && \
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 75 && \
 	update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 100
 
-
-RUN conda install -c conda-forge jupyter
+ENV CONDA_DEFAULT_ENV base
+RUN python -m pip install jupyter
 
 RUN conda install scikit-image
 
