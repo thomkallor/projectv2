@@ -15,7 +15,7 @@ ARG PYTHON_VERSION=3.5
 ## remove broken cuda links 
 RUN rm /etc/apt/sources.list.d/cuda.list && \
 	rm /etc/apt/sources.list.d/nvidia-ml.list
-	
+
 ## install basic dependencies
 RUN apt-get update && apt-get install -y \
 	curl \
@@ -36,10 +36,6 @@ RUN apt-get update && apt-get install -y \
 	apt-get clean && \
 	apt-get autoremove && \
 	rm -rf /var/lib/apt/lists/*
-
-## remove broken cuda links 
-RUN rm /etc/apt/sources.list.d/cuda.list && \
-	rm /etc/apt/sources.list.d/nvidia-ml.list
 
 # conda required for pytorch installation
 # see https://docs.anaconda.com/anaconda/packages/oldpkglists/ to get compatibility with python x.x versions
