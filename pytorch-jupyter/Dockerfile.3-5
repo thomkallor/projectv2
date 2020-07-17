@@ -12,6 +12,10 @@ ARG ANACONDA_VERSION=Miniconda3-4.2.12
 ARG PYTHON=3
 ARG PYTHON_VERSION=3.5
 
+## remove broken cuda links 
+RUN rm /etc/apt/sources.list.d/cuda.list && \
+	rm /etc/apt/sources.list.d/nvidia-ml.list
+	
 ## install basic dependencies
 RUN apt-get update && apt-get install -y \
 	curl \

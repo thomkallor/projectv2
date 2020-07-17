@@ -12,7 +12,6 @@ ARG ANACONDA_VERSION=Miniconda2-latest
 ARG PYTHON=2
 ARG PYTHON_VERSION=2.7
 
-
 ## remove broken cuda links 
 RUN rm /etc/apt/sources.list.d/cuda.list && \
 	rm /etc/apt/sources.list.d/nvidia-ml.list
