@@ -42,7 +42,7 @@ RUN apt-get update && apt-get install -y \
 # see https://docs.anaconda.com/anaconda/packages/oldpkglists/ to get compatibility with python x.x versions
 # conda required for pytorch installation
 RUN wget https://repo.anaconda.com/miniconda/${ANACONDA_VERSION}-Linux-x86_64.sh \
-    && bash ${ANACONDA_VERSION}-Linux-x86_64.sh -b \
+    && bash ${ANACONDA_VERSION}-Linux-x86_64.sh -b -p /usr/local/miniconda${PYTHON} \
     && rm -f ${ANACONDA_VERSION}-Linux-x86_64.sh
 ENV PATH="/usr/local/miniconda${PYTHON}/bin:${PATH}"
 
