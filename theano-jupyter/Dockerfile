@@ -1,13 +1,13 @@
-FROM nvidia/cuda:8.0-cudnn5-devel-ubuntu16.04
+FROM nvidia/cuda:8.0-cudnn5-devel-ubuntu14.04
 
 ARG THEANO_VERSION=master
 ARG TENSORFLOW_VERSION=1.2.1
 ARG TENSORFLOW_ARCH=gpu
 ARG KERAS_VERSION=1.0.8
 ARG CAFFE_VERSION=master
-ARG ANACONDA_VERSION=Miniconda3-4.2.12
-ARG PYTHON=3
-ARG PYTHON_VERSION=3.5
+ARG ANACONDA_VERSION=Miniconda2-latest
+ARG PYTHON=2
+ARG PYTHON_VERSION=2.7
 
 ## remove broken cuda links 
 RUN rm /etc/apt/sources.list.d/cuda.list && \
@@ -26,69 +26,44 @@ RUN apt-get update && apt-get install -y \
     sudo \
     wget
 
-# see https://docs.anaconda.com/anaconda/packages/oldpkglists/ to get compatibility with python x.x versions
-# see https://repo.anaconda.com/miniconda/
 RUN wget https://repo.anaconda.com/miniconda/${ANACONDA_VERSION}-Linux-x86_64.sh \
     && bash ${ANACONDA_VERSION}-Linux-x86_64.sh -b -p /usr/local/miniconda${PYTHON} \
     && rm -f ${ANACONDA_VERSION}-Linux-x86_64.sh
 ENV PATH="/usr/local/miniconda${PYTHON}/bin:${PATH}"
 
-# change default python environment to 3.5 & update to latest compatible versions
-# RUN conda install -y python=3.5
-
 ## Required by theano & some useful packages
 RUN conda install cmake cython numpy scipy python-dateutil scikit-image
 RUN python -m pip install msgpack pydot-ng parameterized mako jupyter
 
-RUN git clone https://github.com/Theano/libgpuarray.git /usr/local/libgpuarray
-RUN cd /usr/local/libgpuarray && git checkout tags/v0.7.6 -b v0.7.6
-RUN cd /usr/local/libgpuarray && mkdir Build && cd Build && \
+RUN git clone https://github.com/Theano/libgpuarray.git
+RUN cd libgpuarray && git checkout tags/v0.7.6 -b v0.7.6
+RUN cd libgpuarray && mkdir Build && cd Build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
     make && make install
-RUN cd /usr/local/libgpuarray && python setup.py build && python setup.py install 
+RUN cd libgpuarray && python setup.py build && python setup.py install 
 RUN ldconfig
 
 # Install Theano
-RUN python -m pip --no-cache-dir install git+git://github.com/Theano/Theano.git@${THEANO_VERSION}
+RUN pip --no-cache-dir install git+git://github.com/Theano/Theano.git@${THEANO_VERSION}
 
 ## set theano default to cuda
 ENV THEANO_FLAGS=mode=FAST_RUN,device=cuda,floatX=float32
 
-## Dependencies of caffe
-# RUN apt-get update && apt-get install -y \
-# 		libgflags-dev \
-# 		libgoogle-glog-dev \
-# 		libleveldb-dev \
-# 		liblmdb-dev \
-# 		&& \
-# 	apt-get clean && \
-# 	apt-get autoremove && \
-# 	rm -rf /var/lib/apt/lists/*
-
-# RUN conda install -c intel mkl boost=1.61
-# RUN conda install -c conda-forge protobuf=3.2.0 hdf5 openblas
-# RUN python -m pip install --upgrade msgpack python-dateutil pytest
-# RUN conda install -c mvn libsnappy
-
-# ## install opencv3 caffe doesnot support opencv 4
-# RUN conda install -c menpo opencv3
-
-# Install tensorflow, needs protobuf=3.2.0
-RUN python -m pip --no-cache-dir install https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow_gpu-${TENSORFLOW_VERSION}-cp35-cp35m-linux_x86_64.whl
+#Install tensorflow
+RUN pip --no-cache-dir install https://storage.googleapis.com/tensorflow/linux/${TENSORFLOW_ARCH}/tensorflow_${TENSORFLOW_ARCH}-${TENSORFLOW_VERSION}-cp27-none-linux_x86_64.whl
 
 RUN git clone https://github.com/keras-team/keras.git
 RUN cd keras && git checkout ${KERAS_VERSION} && python setup.py install
 
-#RUN python -m pip install 
-
 #CuDNN installation cudnn6 for caffe
-RUN wget http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn6_6.0.21-1+cuda8.0_amd64.deb && \
-	wget http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64/libcudnn6-dev_6.0.21-1+cuda8.0_amd64.deb
+RUN wget http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1404/x86_64/libcudnn6_6.0.21-1+cuda8.0_amd64.deb && \
+	wget http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1404/x86_64/libcudnn6-dev_6.0.21-1+cuda8.0_amd64.deb
 RUN yes | dpkg -i ./libcudnn6_6.0.21-1+cuda8.0_amd64.deb && \
 	yes | dpkg -i ./libcudnn6-dev_6.0.21-1+cuda8.0_amd64.deb
 RUN apt-get update && apt-get install -y libcudnn6-dev
 RUN rm libcudnn6_6.0.21-1+cuda8.0_amd64.deb && \
 	rm libcudnn6-dev_6.0.21-1+cuda8.0_amd64.deb
+
 
 ## new environment for caffe
 RUN conda create -n caffe python=${PYTHON_VERSION}
@@ -100,7 +75,6 @@ RUN pip install msgpack python-dateutil pytest scikit-image
 RUN conda install -c mvn libsnappy
 ## install opencv3 caffe doesnot support opencv 4
 RUN conda install -c menpo opencv3
-
 RUN conda install -c bnoon leveldb=1.15
 
 RUN git clone https://github.com/BVLC/caffe.git /usr/local/caffe
@@ -123,6 +97,10 @@ ENV PYTHONPATH=$PYCAFFE_ROOT:$PYTHONPATH \
 	PATH=$CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
 RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
 ENV CONDA_DEFAULT_ENV base
+
+## latest toranado raises isuue with jupyter
+RUN conda install tornado=4.5.3
+RUN conda install -c conda-forge notebook
 
 # Set up notebook config
 COPY jupyter_notebook_config.py /root/.jupyter/
