@@ -57,8 +57,7 @@ RUN python -m pip install \
 		jupyter \
 		pygments \
 		sphinx \
-        wheel \
-        scikit-image
+        wheel
 
 
 # change default python environment to 3.5 & update to latest compatible versions
@@ -69,7 +68,7 @@ RUN python -m pip install \
 RUN conda install -c menpo opencv3
 
 ## pytorch dependencies & useful softwares
-RUN conda install -y numpy ninja scipy pyyaml mkl setuptools cmake cffi mkl-include
+RUN conda install -y numpy ninja scipy pyyaml mkl setuptools cmake cffi mkl-include scikit-image
 
 # Add LAPACK support for the GPU
 RUN conda install -c soumith magma-cuda80
