@@ -65,7 +65,7 @@ RUN python -m pip install \
         wheel \
         scikit-image
 
-## pytorch dependencies
+## pytorch dependencies & useful softwares
 RUN conda install -y numpy ninja scipy pyyaml mkl setuptools cmake cffi mkl-include
 
 # Add LAPACK support for the GPU
@@ -82,14 +82,6 @@ RUN rm -rf pytorch
 
 ## can be used if torchvision is needed
 ## RUN python -m pip install torchvision==0.1.9
-
-
-RUN conda install -c intel boost=1.61.0
-RUN conda install -c conda-forge protobuf=3.2.0 hdf5 openblas
-RUN python -m pip install --upgrade msgpack python-dateutil pytest scikit-image
-RUN conda install -c mvn libsnappy
-## install opencv3 caffe doesnot support opencv 4
-RUN conda install -c menpo opencv3
 
 # Install Torch
 RUN git clone --recursive https://github.com/torch/distro.git /usr/local/torch && \
@@ -153,6 +145,13 @@ RUN git clone git://github.com/lisa-lab/pylearn2.git && \
 
 ## data path for pylearn
 ENV PYLEARN2_DATA_PATH=/usr/local/pylearn2/data
+
+RUN conda install -c intel boost=1.61.0
+RUN conda install -c conda-forge protobuf=3.2.0 hdf5 openblas
+RUN python -m pip install --upgrade msgpack python-dateutil pytest scikit-image
+RUN conda install -c mvn libsnappy
+## install opencv3 caffe doesnot support opencv 4
+RUN conda install -c menpo opencv3
 
 RUN git clone https://github.com/BVLC/caffe.git /usr/local/caffe
 

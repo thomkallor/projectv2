@@ -45,6 +45,22 @@ RUN wget https://repo.anaconda.com/miniconda/${ANACONDA_VERSION}-Linux-x86_64.sh
     && rm -f ${ANACONDA_VERSION}-Linux-x86_64.sh
 ENV PATH="/usr/local/miniconda${PYTHON}/bin:${PATH}"
 
+# Add SNI support to Python
+# install useful packages if not present
+RUN python -m pip install \
+		pyopenssl \
+		ndg-httpsclient \
+		pyasn1 \
+		Cython \
+		path.py \
+		Pillow \
+		jupyter \
+		pygments \
+		sphinx \
+        wheel \
+        scikit-image
+
+
 # change default python environment to 3.5 & update to latest compatible versions
 # RUN conda install -y python=3.5
 # RUN conda update conda anaconda
@@ -52,8 +68,8 @@ ENV PATH="/usr/local/miniconda${PYTHON}/bin:${PATH}"
 ## install opencv3 caffe doesnot support opencv 4
 RUN conda install -c menpo opencv3
 
-## pytorch dependencies
-RUN conda install -y numpy ninja pyyaml mkl setuptools cmake cffi mkl-include
+## pytorch dependencies & useful softwares
+RUN conda install -y numpy ninja scipy pyyaml mkl setuptools cmake cffi mkl-include
 
 # Add LAPACK support for the GPU
 RUN conda install -c soumith magma-cuda80
@@ -89,21 +105,6 @@ RUN luarocks install nn && \
 	luarocks install cutorch && \
 	luarocks install cunn && \
     luarocks install loadcaffe
-
-# Add SNI support to Python
-# install useful packages if not present
-RUN python -m pip install \
-		pyopenssl \
-		ndg-httpsclient \
-		pyasn1 \
-		Cython \
-		path.py \
-		Pillow \
-		jupyter \
-		pygments \
-		sphinx \
-        wheel \
-        scikit-image
 
 RUN cd /usr/local && git clone https://github.com/soumith/cudnn.torch.git && cd cudnn.torch && \
 	git checkout R4 && \
