@@ -3,8 +3,11 @@ FROM nvidia/cuda:10.1-cudnn7-devel-ubuntu18.04
 ARG TENSORFLOW_VERSION=2.2.0
 ARG TENSORFLOW_ARCH=gpu
 ARG CAFFE_VERSION=master
-ARG ANACONDA_VERSION=Miniconda3
+ARG ANACONDA_VERSION=Miniconda3-latest
 ARG PYTORCH_VERSION=1.5.1
+ARG PYTHON=3
+ARG PYTHON_VERSION=3.7
+ARG CAFFE_PYTHON=3.5
 
 ## install basic dependencies
 RUN apt-get update && apt-get install -y \
@@ -16,10 +19,10 @@ RUN apt-get update && apt-get install -y \
     sudo \
     wget
 
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
-    && bash Miniconda3-latest-Linux-x86_64.sh -b -p /usr/local/miniconda3\
-    && rm -f Miniconda3-latest-Linux-x86_64.sh
-ENV PATH="/usr/local/miniconda3/bin:${PATH}"
+RUN wget https://repo.anaconda.com/miniconda/${ANACONDA_VERSION}-Linux-x86_64.sh \
+    && bash ${ANACONDA_VERSION}-Linux-x86_64.sh -b -p /usr/local/miniconda${PYTHON}\
+    && rm -f ${ANACONDA_VERSION}-Linux-x86_64.sh
+ENV PATH="/usr/local/miniconda${PYTHON}/bin:${PATH}"
 
 RUN python -m pip install https://storage.googleapis.com/tensorflow/linux/${TENSORFLOW_ARCH}/tensorflow_${TENSORFLOW_ARCH}-${TENSORFLOW_VERSION}-cp37-cp37m-manylinux2010_x86_64.whl
 RUN conda install -c pytorch torchvision pytorch
@@ -44,9 +47,6 @@ RUN apt-get update && apt-get install -y libcudnn6-dev
 RUN rm libcudnn6_6.0.21-1+cuda8.0_amd64.deb && \
 	rm libcudnn6-dev_6.0.21-1+cuda8.0_amd64.deb
 
-# Make RUN commands use the new environment:
-# SHELL ["conda", "run", "-n", "caffe", "/bin/bash", "-c"]
-
 ## caffe needs gcc4
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 RUN apt-get update && apt-get install -y gcc-4.8 g++-4.8
@@ -58,7 +58,7 @@ RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 100 && \
 	update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 75
 
 ## new environment for caffe
-RUN conda create -n caffe python=3.5
+RUN conda create -n caffe python=${CAFFE_PYTHON}
 ENV CONDA_DEFAULT_ENV caffe
 RUN conda install cython cmake
 RUN conda install -c intel mkl boost=1.61.0 glog gflags=2.1
@@ -73,10 +73,10 @@ RUN conda install -c bnoon leveldb=1.15
 RUN git clone https://github.com/BVLC/caffe.git /usr/local/caffe
 
 RUN bin/bash -c 'source activate caffe && cd /usr/local/caffe && mkdir build && cd build && \
-	cmake -DPYTHON_INCLUDE_DIR=/usr/local/miniconda3/envs/caffe/include/python3.5m \
-	-DPYTHON_INCLUDE_DIR2=/usr/local/miniconda3/envs/caffe/include/python3.5m \
-	-DPYTHON_LIBRARY=/usr/local/miniconda3/envs/caffe/lib/libpython3.5m.so \
-	-Dpython_version=3 \
+	cmake -DPYTHON_INCLUDE_DIR=/usr/local/miniconda${PYTHON}/envs/caffe/include/python${CAFFE_PYTHON}m \
+	-DPYTHON_INCLUDE_DIR2=/usr/local/miniconda${PYTHON}/envs/caffe/include/python${CAFFE_PYTHON}m \
+	-DPYTHON_LIBRARY=/usr/local/miniconda${PYTHON}/envs/caffe/lib/libpython${CAFFE_PYTHON}m.so \
+	-Dpython_version=${PYTHON} \
 	-DUSE_CUDNN=1 \
 	-DBLAS=Open \
 	..  && \

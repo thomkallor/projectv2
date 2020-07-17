@@ -4,12 +4,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 ARG THEANO_VERSION=rel-0.8.2
 ARG TENSORFLOW_VERSION=0.6.0
 ARG TENSORFLOW_ARCH=gpu
-ARG KERAS_VERSION=1.2.0
-ARG LASAGNE_VERSION=v0.1
+ARG LASAGNE_VERSION=master
 ARG TORCH_VERSION=latest
-ARG CAFFE_VERSION=master
+ARG CAFFE_VERSION=latest
 ARG PYTORCH_VERSION=0.3.0
-ARG ANACONDA_VERSION=Anaconda3-4.2.0
+ARG ANACONDA_VERSION=Miniconda3-4.2.12
+ARG PYTHON=3
+ARG PYTHON_VERSION=3.5
 
 ## install basic dependencies
 RUN apt-get update && apt-get install -y \
@@ -21,6 +22,17 @@ RUN apt-get update && apt-get install -y \
     sudo \
     wget
 
+## Dependencies of caffe and torch
+RUN apt-get update && apt-get install -y \
+		libgflags-dev \
+		libgoogle-glog-dev \
+		libleveldb-dev \
+		liblmdb-dev \
+		&& \
+	apt-get clean && \
+	apt-get autoremove && \
+	rm -rf /var/lib/apt/lists/*
+
 ## remove broken cuda links 
 RUN rm /etc/apt/sources.list.d/cuda.list && \
 	rm /etc/apt/sources.list.d/nvidia-ml.list
@@ -28,10 +40,10 @@ RUN rm /etc/apt/sources.list.d/cuda.list && \
 # conda required for pytorch installation
 # see https://docs.anaconda.com/anaconda/packages/oldpkglists/ to get compatibility with python x.x versions
 ## https://repo.anaconda.com/miniconda/Miniconda3-4.2.12-Linux-x86_64.sh
-RUN wget https://repo.anaconda.com/archive/${ANACONDA_VERSION}-Linux-x86_64.sh \
-    && bash Anaconda3-4.2.0-Linux-x86_64.sh -b \
-    && rm -f Anaconda3-4.2.0-Linux-x86_64.sh
-ENV PATH="/root/anaconda3/bin:${PATH}"
+RUN wget https://repo.anaconda.com/miniconda/${ANACONDA_VERSION}-Linux-x86_64.sh \
+    && bash ${ANACONDA_VERSION}-Linux-x86_64.sh -b -p /usr/local/miniconda${PYTHON} \
+    && rm -f ${ANACONDA_VERSION}-Linux-x86_64.sh
+ENV PATH="/usr/local/miniconda${PYTHON}/bin:${PATH}"
 
 # change default python environment to 3.5 & update to latest compatible versions
 # RUN conda install -y python=3.5
@@ -58,35 +70,19 @@ RUN rm -rf pytorch
 ## can be used if torchvision is needed
 ## RUN python -m pip install torchvision==0.1.9
 
-## Dependencies of caffe and torch
-RUN apt-get update && apt-get install -y \
-		libgflags-dev \
-		libgoogle-glog-dev \
-		libleveldb-dev \
-		liblmdb-dev \
-		&& \
-	apt-get clean && \
-	apt-get autoremove && \
-	rm -rf /var/lib/apt/lists/*
-
-RUN conda install -c intel boost=1.61.0
-RUN conda install -c conda-forge protobuf=3.2.0 hdf5 openblas
-RUN python -m pip install --upgrade msgpack python-dateutil pytest
-RUN conda install -c mvn libsnappy
-
 # Install Torch
-RUN git clone --recursive https://github.com/torch/distro.git /root/torch && \
-	cd /root/torch && \
+RUN git clone --recursive https://github.com/torch/distro.git /usr/local/torch && \
+	cd /usr/local/torch && \
 	bash install-deps && \
 	yes | bash ./install.sh
 	
 # Export the LUA evironment variables manually
-ENV LUA_PATH='/root/.luarocks/share/lua/5.1/?.lua;/root/.luarocks/share/lua/5.1/?/init.lua;/root/torch/install/share/lua/5.1/?.lua;/root/torch/install/share/lua/5.1/?/init.lua;./?.lua;/root/torch/install/share/luajit-2.1.0-beta1/?.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua' \
-	LUA_CPATH='/root/.luarocks/lib/lua/5.1/?.so;/root/torch/install/lib/lua/5.1/?.so;./?.so;/usr/local/lib/lua/5.1/?.so;/usr/local/lib/lua/5.1/loadall.so' \
-	PATH=/root/torch/install/bin:$PATH \
-	LD_LIBRARY_PATH=/root/torch/install/lib:$LD_LIBRARY_PATH \
-	DYLD_LIBRARY_PATH=/root/torch/install/lib:$DYLD_LIBRARY_PATH
-ENV LUA_CPATH='/root/torch/install/lib/?.so;$LUA_CPATH'
+ENV LUA_PATH='/usr/local/.luarocks/share/lua/5.1/?.lua;/usr/local/.luarocks/share/lua/5.1/?/init.lua;/usr/local/torch/install/share/lua/5.1/?.lua;/usr/local/torch/install/share/lua/5.1/?/init.lua;./?.lua;/usr/local/torch/install/share/luajit-2.1.0-beta1/?.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua' \
+	LUA_CPATH='/usr/local/.luarocks/lib/lua/5.1/?.so;/usr/local/torch/install/lib/lua/5.1/?.so;./?.so;/usr/local/lib/lua/5.1/?.so;/usr/local/lib/lua/5.1/loadall.so' \
+	PATH=/usr/local/torch/install/bin:$PATH \
+	LD_LIBRARY_PATH=/usr/local/torch/install/lib:$LD_LIBRARY_PATH \
+	DYLD_LIBRARY_PATH=/usr/local/torch/install/lib:$DYLD_LIBRARY_PATH
+ENV LUA_CPATH='/usr/local/torch/install/lib/?.so;$LUA_CPATH'
 
 # Install the latest versions of nn, cutorch, cunn, cuDNN bindings and iTorch
 RUN luarocks install nn && \
@@ -109,7 +105,7 @@ RUN python -m pip install \
         wheel \
         scikit-image
 
-RUN cd /root && git clone https://github.com/soumith/cudnn.torch.git && cd cudnn.torch && \
+RUN cd /usr/local && git clone https://github.com/soumith/cudnn.torch.git && cd cudnn.torch && \
 	git checkout R4 && \
 	luarocks make
 
@@ -119,7 +115,7 @@ RUN	luarocks install lbase64 && \
 	luarocks install uuid && \
 	luarocks install lzmq
 
-RUN	cd /root && git clone https://github.com/facebook/iTorch.git && \
+RUN	cd /usr/local && git clone https://github.com/facebook/iTorch.git && \
 	cd iTorch && \
 	luarocks make
 
@@ -141,7 +137,7 @@ RUN pip --no-cache-dir install git+git://github.com/Theano/Theano.git@${THEANO_V
 ENV THEANO_FLAGS=mode=FAST_RUN,device=cuda,floatX=float32
 
 # Install lasagne
-RUN pip --no-cache-dir install git+git://github.com/Lasagne/Lasagne.git@${master}
+RUN pip --no-cache-dir install git+git://github.com/Lasagne/Lasagne.git@${LASAGNE_VERSION}
 
 ## install pylearn2
 RUN git clone git://github.com/lisa-lab/pylearn2.git && \
@@ -150,14 +146,19 @@ RUN git clone git://github.com/lisa-lab/pylearn2.git && \
 	 mkdir data
 
 ## data path for pylearn
-ENV PYLEARN2_DATA_PATH=/root/pylearn2/data
+ENV PYLEARN2_DATA_PATH=/usr/local/pylearn2/data
 
-RUN git clone https://github.com/BVLC/caffe.git /root/caffe
+RUN conda install -c intel boost=1.61.0
+RUN conda install -c conda-forge protobuf=3.2.0 hdf5 openblas
+RUN python -m pip install --upgrade msgpack python-dateutil pytest
+RUN conda install -c mvn libsnappy
 
-RUN cd /root/caffe && mkdir build && cd build && \
-	cmake -DPYTHON_INCLUDE_DIR=/root/anaconda3/include/python3.5m \
-	-DPYTHON_INCLUDE_DIR2=/root/anaconda3/include/python3.5m \
-	-DPYTHON_LIBRARY=/root/anaconda3/lib/libpython3.5m.so \
+RUN git clone https://github.com/BVLC/caffe.git /usr/local/caffe
+
+RUN cd /usr/local/caffe && mkdir build && cd build && \
+	cmake -DPYTHON_INCLUDE_DIR=/usr/local/miniconda${PYTHON}/include/python3.5m \
+	-DPYTHON_INCLUDE_DIR2=/usr/local/miniconda${PYTHON}/include/python3.5m \
+	-DPYTHON_LIBRARY=/usr/local/miniconda${PYTHON}/lib/libpython3.5m.so \
 	-Dpython_version=3 \
 	-DUSE_CUDNN=1 \
 	-DBLAS=Open \
@@ -166,7 +167,7 @@ RUN cd /root/caffe && mkdir build && cd build && \
 	make install
 
 # Set up Caffe environment variables
-ENV CAFFE_ROOT=/root/caffe
+ENV CAFFE_ROOT=/usr/local/caffe
 ENV PYCAFFE_ROOT=$CAFFE_ROOT/python
 ENV PYTHONPATH=$PYCAFFE_ROOT:$PYTHONPATH \
 	PATH=$CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
@@ -179,8 +180,8 @@ RUN apt-get update && apt-get install -y cuda-toolkit-7-0
 RUN rm cuda-repo-ubuntu1410-7-0-local_7.0-28_amd64.deb
 ENV LD_LIBRARY_PATH=/usr/local/cuda-7.0/lib64:$LD_LIBRARY_PATH
 
-RUN git clone https://github.com/thomkallor/cudnn-6.5.git /root/cudnn-6.5
-ENV LD_LIBRARY_PATH=/root/cudnn-6.5:$LD_LIBRARY_PATH
+RUN git clone https://github.com/thomkallor/cudnn-6.5.git /usr/local/cudnn-6.5
+ENV LD_LIBRARY_PATH=/usr/local/cudnn-6.5:$LD_LIBRARY_PATH
 
 ## require bazel 0.1.1 for tensorflow build
 ## use if you have to build from source
