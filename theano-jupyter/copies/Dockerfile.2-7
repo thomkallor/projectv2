@@ -31,9 +31,27 @@ RUN wget https://repo.anaconda.com/miniconda/${ANACONDA_VERSION}-Linux-x86_64.sh
     && rm -f ${ANACONDA_VERSION}-Linux-x86_64.sh
 ENV PATH="/usr/local/miniconda${PYTHON}/bin:${PATH}"
 
-## Required by theano & some useful packages
-RUN conda install cmake cython numpy scipy python-dateutil scikit-image
-RUN python -m pip install msgpack pydot-ng parameterized mako jupyter
+## Required by theano
+RUN conda install numpy cmake Cython
+RUN python -m pip install msgpack pydot-ng parameterized mako
+
+## Dependencies of caffe
+RUN apt-get update && apt-get install -y \
+		libgflags-dev \
+		libgoogle-glog-dev \
+		libleveldb-dev \
+		liblmdb-dev \
+		&& \
+	apt-get clean && \
+	apt-get autoremove && \
+	rm -rf /var/lib/apt/lists/*
+
+RUN conda install -c intel mkl boost=1.61.0
+RUN conda install -c conda-forge protobuf=3.2.0 hdf5 openblas
+RUN python -m pip install --upgrade msgpack python-dateutil pytest scikit-image
+RUN conda install -c mvn libsnappy
+## install opencv3 caffe doesnot support opencv 4
+RUN conda install -c menpo opencv3
 
 RUN git clone https://github.com/Theano/libgpuarray.git
 RUN cd libgpuarray && git checkout tags/v0.7.6 -b v0.7.6
@@ -64,31 +82,18 @@ RUN apt-get update && apt-get install -y libcudnn6-dev
 RUN rm libcudnn6_6.0.21-1+cuda8.0_amd64.deb && \
 	rm libcudnn6-dev_6.0.21-1+cuda8.0_amd64.deb
 
-
-## new environment for caffe
-RUN conda create -n caffe python=${PYTHON_VERSION}
-ENV CONDA_DEFAULT_ENV caffe
-RUN conda install cython cmake
-RUN conda install -c intel mkl boost=1.61.0 glog gflags=2.1
-RUN conda install -c conda-forge protobuf=3.2.0 hdf5 openblas lmdb
-RUN pip install msgpack python-dateutil pytest scikit-image
-RUN conda install -c mvn libsnappy
-## install opencv3 caffe doesnot support opencv 4
-RUN conda install -c menpo opencv3
-RUN conda install -c bnoon leveldb=1.15
-
 RUN git clone https://github.com/BVLC/caffe.git /usr/local/caffe
 
-RUN bin/bash -c 'source activate caffe && cd /usr/local/caffe && mkdir build && cd build && \
-	cmake -DPYTHON_INCLUDE_DIR=/usr/local/miniconda${PYTHON}/envs/caffe/include/python${PYTHON_VERSION}m \
-	-DPYTHON_INCLUDE_DIR2=/usr/local/miniconda${PYTHON}/envs/caffe/include/python${PYTHON_VERSION}m \
-	-DPYTHON_LIBRARY=/usr/local/miniconda${PYTHON}/envs/caffe/lib/libpython${PYTHON_VERSION}m.so \
+RUN cd /usr/local/caffe && mkdir build && cd build && \
+	cmake -DPYTHON_INCLUDE_DIR=/usr/local/miniconda${PYTHON}/include/python2.7 \
+	-DPYTHON_INCLUDE_DIR2=/usr/local/miniconda${PYTHON}/include/python2.7 \
+	-DPYTHON_LIBRARY=/usr/local/miniconda${PYTHON}/lib/libpython2.7.so \
 	-Dpython_version=${PYTHON} \
 	-DUSE_CUDNN=1 \
 	-DBLAS=Open \
 	..  && \
 	make -j"$(nproc)" all && \
-	make install'
+	make install
 
 # Set up Caffe environment variables
 ENV CAFFE_ROOT=/usr/local/caffe
@@ -96,7 +101,6 @@ ENV PYCAFFE_ROOT=$CAFFE_ROOT/python
 ENV PYTHONPATH=$PYCAFFE_ROOT:$PYTHONPATH \
 	PATH=$CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
 RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
-ENV CONDA_DEFAULT_ENV base
 
 ## latest toranado raises isuue with jupyter
 RUN conda install tornado=4.5.3
