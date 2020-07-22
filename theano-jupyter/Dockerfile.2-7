@@ -90,7 +90,6 @@ ENV CONDA_DEFAULT_ENV base
 
 ## latest toranado raises isuue with jupyter
 RUN conda install tornado=4.5.3
-RUN conda install -c conda-forge notebook
 
 # Set up notebook config
 COPY jupyter_notebook_config.py /root/.jupyter/

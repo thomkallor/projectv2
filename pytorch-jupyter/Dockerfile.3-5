@@ -155,10 +155,10 @@ RUN conda install -c menpo opencv3
 RUN git clone https://github.com/BVLC/caffe.git /usr/local/caffe
 
 RUN cd /usr/local/caffe && mkdir build && cd build && \
-	cmake -DPYTHON_INCLUDE_DIR=/usr/local/miniconda${PYTHON}/include/python3.5m \
-	-DPYTHON_INCLUDE_DIR2=/usr/local/miniconda${PYTHON}/include/python3.5m \
-	-DPYTHON_LIBRARY=/usr/local/miniconda${PYTHON}/lib/libpython3.5m.so \
-	-Dpython_version=3 \
+	cmake -DPYTHON_INCLUDE_DIR=/usr/local/miniconda${PYTHON}/include/python${PYTHON_VERSION}m \
+	-DPYTHON_INCLUDE_DIR2=/usr/local/miniconda${PYTHON}/include/python${PYTHON_VERSION}m \
+	-DPYTHON_LIBRARY=/usr/local/miniconda${PYTHON}/lib/libpython${PYTHON_VERSION}m.so \
+	-Dpython_version=${PYTHON} \
 	-DUSE_CUDNN=1 \
 	-DBLAS=Open \
 	..  && \
