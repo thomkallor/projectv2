@@ -64,7 +64,7 @@ RUN python -m pip install \
         wheel
 
 ## pytorch dependencies & useful softwares
-RUN conda install -y numpy ninja scipy pyyaml mkl setuptools cmake cffi mkl-include  scikit-image
+RUN conda install -y numpy ninja scipy pyyaml mkl setuptools cmake cffi scikit-image
 
 # Add LAPACK support for the GPU
 RUN conda install -c soumith magma-cuda80
