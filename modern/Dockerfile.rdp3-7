@@ -1,0 +1,35 @@
+FROM kallor/allinone:modern
+ENV DEBIAN_FRONTEND noninteractive
+ARG ROOT_PASSWORD="password"
+RUN apt-get update && apt-get install openssh-server xauth xorg -y
+
+##ssh config
+RUN mkdir /var/run/sshd
+RUN echo "root:${ROOT_PASSWORD}" | chpasswd
+
+RUN sed -ri 's/^#?PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
+
+RUN echo "export PATH=${PATH}" >> /etc/profile && \
+    echo "export LIBRARY_PATH=${LIBRARY_PATH}" >> /etc/profile && \
+    echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" >> /etc/profile && \
+    echo "export CAFFE_ROOT=${CAFFE_ROOT}" >> /etc/profile && \
+    echo "export PYCAFFE_ROOT=${PYCAFFE_ROOT}" >> /etc/profile && \
+    echo "export PYTHONPATH=${PYTHONPATH}" >> /etc/profile
+
+RUN apt-get install dictionaries-common
+RUN apt-get install xfce4 software-properties-common -y
+RUN add-apt-repository ppa:x2go/stable && apt-get update
+RUN apt-get install x2goserver x2goserver-xsession -y
+RUN apt-get install xfce4-terminal -y
+
+## gnome terminal not support assign higher priority to XFCE4
+RUN update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/xfce4-terminal.wrapper 100
+# RUN mkdir /usr/share/jupyter
+# COPY jupyter_notebook_config.py /usr/share/jupyter
+# COPY run_jupyter.sh /usr/share/jupyter
+# RUN echo "mkdir /\${USER}/.jupyter/ && cp /usr/share/jupyter/jupyter_notebook_config.py /\${USER}/.jupyter/" >> /etc/profile
+# RUN echo "cp /usr/share/jupyter/run_jupyter.sh /\${USER}/" >> /etc/profile
+
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]

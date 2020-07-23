@@ -1,0 +1,31 @@
+FROM kallor/allinone:luatorch-py2-7
+ENV DEBIAN_FRONTEND noninteractive
+ARG ROOT_PASSWORD="password"
+
+RUN apt-get update && apt-get install -y openssh-server xauth xorg
+
+##ssh config
+RUN mkdir /var/run/sshd
+RUN echo 'root:${ROOT_PASSWORD}' | chpasswd
+RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# SSH login fix. Otherwise user is kicked off after login
+RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+
+RUN echo "export PATH=${PATH}" >> /etc/profile && \
+    echo "export LIBRARY_PATH=${LIBRARY_PATH}" >> /etc/profile && \
+    echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" >> /etc/profileRUN echo "export PATH=${PATH}" >> /etc/profile && \
+    echo "export LIBRARY_PATH=${LIBRARY_PATH}" >> /etc/profile && \
+    echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" >> /etc/profile && \
+    echo "export CAFFE_ROOT=${CAFFE_ROOT}" >> /etc/profile && \
+    echo "export PYCAFFE_ROOT=${PYCAFFE_ROOT}" >> /etc/profile && \
+    echo "export PYTHONPATH=${PYTHONPATH}" >> /etc/profile && \
+    echo "export THEANO_FLAGS=${THEANO_FLAGS}" >> /etc/profile
+
+RUN apt-get install dictionaries-common
+RUN apt-get install xfce4 software-properties-common -y
+RUN add-apt-repository ppa:x2go/stable && apt-get update
+RUN apt-get install x2goserver x2goserver-xsession -y
+
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]

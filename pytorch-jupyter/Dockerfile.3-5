@@ -59,25 +59,24 @@ RUN python -m pip install \
 		sphinx \
         wheel
 
-
 # change default python environment to 3.5 & update to latest compatible versions
 # RUN conda install -y python=3.5
 # RUN conda update conda anaconda
 
 ## pytorch dependencies & useful softwares
 RUN conda install -y numpy ninja scipy pyyaml mkl setuptools cmake cffi scikit-image
+RUN python -m pip install pathlib
 
 # Add LAPACK support for the GPU
 RUN conda install -c soumith magma-cuda80
 
 ## pytorch installation
-RUN git clone https://github.com/pytorch/pytorch.git
-RUN cd pytorch && git checkout "v$PYTORCH_VERSION"
-RUN cd pytorch && git submodule sync && git submodule update --init --recursive
-RUN python -m pip install pathlib
+RUN git clone https://github.com/pytorch/pytorch.git /usr/local/pytorch
+RUN cd /usr/local/pytorch && git checkout "v$PYTORCH_VERSION"
+RUN cd /usr/local/pytorch && git submodule sync && git submodule update --init --recursive
 RUN export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
-RUN cd pytorch && python setup.py install
-RUN rm -rf pytorch
+RUN cd /usr/local/pytorch && python setup.py install
+RUN rm -rf /usr/local/pytorch
 
 ## can be used if torchvision is needed
 ## RUN python -m pip install torchvision==0.1.9
@@ -119,12 +118,12 @@ RUN	cd /usr/local && git clone https://github.com/facebook/iTorch.git && \
 ## Required by theano
 RUN python -m pip install msgpack pydot-ng parameterized mako
 
-RUN git clone https://github.com/Theano/libgpuarray.git
-RUN cd libgpuarray && git checkout tags/v0.7.6 -b v0.7.6
-RUN cd libgpuarray && mkdir Build && cd Build && \
+RUN git clone https://github.com/Theano/libgpuarray.git /usr/local/libgpuarray
+RUN cd /usr/local/libgpuarray && git checkout tags/v0.7.6 -b v0.7.6
+RUN cd /usr/local/libgpuarray && mkdir Build && cd Build && \
     cmake .. -DCMAKE_BUILD_TYPE=Release && \
     make && make install
-RUN cd libgpuarray && python setup.py build && python setup.py install 
+RUN cd /usr/local/libgpuarray && python setup.py build && python setup.py install 
 RUN ldconfig
 
 # Install Theano
@@ -137,10 +136,10 @@ ENV THEANO_FLAGS=mode=FAST_RUN,device=cuda,floatX=float32
 RUN pip --no-cache-dir install git+git://github.com/Lasagne/Lasagne.git@${LASAGNE_VERSION}
 
 ## install pylearn2
-RUN git clone git://github.com/lisa-lab/pylearn2.git && \
-     cd pylearn2 && \
-     python setup.py develop && \
-	 mkdir data
+RUN cd /usr/local && git clone git://github.com/lisa-lab/pylearn2.git && \
+    cd pylearn2 && \
+    python setup.py develop && \
+	mkdir data
 
 ## data path for pylearn
 ENV PYLEARN2_DATA_PATH=/usr/local/pylearn2/data
