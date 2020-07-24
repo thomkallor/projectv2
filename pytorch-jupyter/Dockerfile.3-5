@@ -95,6 +95,9 @@ ENV LUA_PATH='/usr/local/.luarocks/share/lua/5.1/?.lua;/usr/local/.luarocks/shar
 	DYLD_LIBRARY_PATH=/usr/local/torch/install/lib:$DYLD_LIBRARY_PATH
 ENV LUA_CPATH='/usr/local/torch/install/lib/?.so;$LUA_CPATH'
 
+## loadcaffe needs protobuf
+RUN conda install -c conda-forge protobuf=3.2.0
+
 # Install the latest versions of nn, cutorch, cunn, cuDNN bindings and iTorch
 RUN luarocks install nn && \
 	luarocks install cutorch && \
