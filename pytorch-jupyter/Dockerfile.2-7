@@ -85,8 +85,7 @@ RUN rm -rf /usr/local/pytorch
 RUN git clone --recursive https://github.com/torch/distro.git /usr/local/torch && \
 	cd /usr/local/torch && \
 	bash install-deps && \
-	yes | bash ./install.sh && \
-	bash ./clean.sh
+	yes | bash ./install.sh
 	
 # Export the LUA evironment variables manually
 ENV LUA_PATH='/usr/local/.luarocks/share/lua/5.1/?.lua;/usr/local/.luarocks/share/lua/5.1/?/init.lua;/usr/local/torch/install/share/lua/5.1/?.lua;/usr/local/torch/install/share/lua/5.1/?/init.lua;./?.lua;/usr/local/torch/install/share/luajit-2.1.0-beta1/?.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua' \
