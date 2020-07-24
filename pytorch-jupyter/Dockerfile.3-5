@@ -64,7 +64,8 @@ RUN python -m pip install \
 # RUN conda update conda anaconda
 
 ## pytorch dependencies & useful softwares
-RUN conda install -y numpy ninja scipy pyyaml mkl setuptools cmake cffi scikit-image
+RUN conda install -c intel mkl boost=1.61.0
+RUN conda install -y numpy=1.11.3 ninja scipy pyyaml setuptools cmake cffi scikit-image
 RUN python -m pip install pathlib
 
 # Add LAPACK support for the GPU
@@ -147,7 +148,7 @@ RUN cd /usr/local && git clone git://github.com/lisa-lab/pylearn2.git && \
 ## data path for pylearn
 ENV PYLEARN2_DATA_PATH=/usr/local/pylearn2/data
 
-RUN conda install -c intel boost=1.61.0
+RUN conda install -c intel mkl boost=1.61.0
 RUN conda install -c conda-forge protobuf=3.2.0 hdf5 openblas
 RUN python -m pip install --upgrade msgpack python-dateutil pytest
 RUN conda install -c mvn libsnappy
