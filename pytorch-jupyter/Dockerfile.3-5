@@ -149,7 +149,6 @@ RUN pip --no-cache-dir install git+git://github.com/Lasagne/Lasagne.git@${LASAGN
 ENV PYLEARN2_DATA_PATH=/usr/local/pylearn2/data
 
 # RUN conda install -c intel mkl boost=1.61.0
-RUN conda install -y mkl-service
 RUN conda install -c intel boost=1.61.0
 RUN conda install -c conda-forge protobuf=3.2.0 hdf5 openblas
 RUN python -m pip install --upgrade msgpack python-dateutil pytest
