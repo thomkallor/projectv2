@@ -64,8 +64,9 @@ RUN python -m pip install \
 # RUN conda update conda anaconda
 
 ## pytorch dependencies & useful softwares
+RUN conda install -c intel mkl boost=1.61.0
 RUN conda install -c menpo opencv3
-RUN conda install -y numpy=1.11.3 ninja scipy pyyaml mkl setuptools cmake cffi scikit-image
+RUN conda install -y numpy=1.11.3 ninja scipy pyyaml setuptools cmake cffi scikit-image
 RUN python -m pip install pathlib
 
 # Add LAPACK support for the GPU
@@ -148,8 +149,7 @@ RUN pip --no-cache-dir install git+git://github.com/Lasagne/Lasagne.git@${LASAGN
 ## data path for pylearn
 ENV PYLEARN2_DATA_PATH=/usr/local/pylearn2/data
 
-# RUN conda install -c intel mkl boost=1.61.0
-RUN conda install -c intel boost=1.61.0
+# RUN conda install -c intel boost=1.61.0
 RUN conda install -c conda-forge protobuf=3.2.0 hdf5 openblas
 RUN python -m pip install --upgrade msgpack python-dateutil pytest
 RUN conda install -c mvn libsnappy
@@ -183,6 +183,7 @@ ENV LD_LIBRARY_PATH=/usr/local/cuda-7.0/lib64:$LD_LIBRARY_PATH
 
 RUN git clone https://github.com/thomkallor/cudnn-6.5.git /usr/local/cudnn-6.5
 ENV LD_LIBRARY_PATH=/usr/local/cudnn-6.5:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64:$LD_LIBRARY_PATH
 
 ## require bazel 0.1.1 for tensorflow build
 ## use if you have to build from source
@@ -225,7 +226,7 @@ RUN git clone https://github.com/thomkallor/tensorflow-0.6.0-py3.5.git
 RUN cd tensorflow-0.6.0-py3.5 && python -m pip install tensorflow-0.6.0-py3-none-any.whl
 RUN rm -rf tensorflow-0.6.0-py3.5
 
-RUN conda install mkl-service jupyter
+RUN conda install mkl-service
 # Set up notebook config
 COPY jupyter_notebook_config.py /root/.jupyter/
 
