@@ -65,7 +65,7 @@ RUN python -m pip install \
 
 ## pytorch dependencies & useful softwares
 RUN conda install -c menpo opencv3
-RUN conda install -y numpy ninja scipy pyyaml mkl setuptools cmake cffi scikit-image
+RUN conda install -y numpy=1.11.3 ninja scipy pyyaml mkl setuptools cmake cffi scikit-image
 RUN python -m pip install pathlib
 
 # Add LAPACK support for the GPU
