@@ -121,6 +121,7 @@ RUN	cd /usr/local && git clone https://github.com/facebook/iTorch.git && \
 
 ## Required by theano
 RUN python -m pip install msgpack pydot-ng parameterized mako
+RUN conda install -y mkl-service
 
 RUN git clone https://github.com/Theano/libgpuarray.git /usr/local/libgpuarray
 RUN cd /usr/local/libgpuarray && git checkout tags/v0.7.6 -b v0.7.6
