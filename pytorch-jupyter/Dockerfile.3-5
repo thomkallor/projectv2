@@ -121,7 +121,6 @@ RUN	cd /usr/local && git clone https://github.com/facebook/iTorch.git && \
 
 ## Required by theano
 RUN python -m pip install msgpack pydot-ng parameterized mako
-RUN conda install -y mkl-service
 
 RUN git clone https://github.com/Theano/libgpuarray.git /usr/local/libgpuarray
 RUN cd /usr/local/libgpuarray && git checkout tags/v0.7.6 -b v0.7.6
@@ -152,6 +151,7 @@ ENV PYLEARN2_DATA_PATH=/usr/local/pylearn2/data
 # RUN conda install -c intel mkl boost=1.61.0
 RUN conda install -c intel boost=1.61.0
 RUN conda install -c conda-forge protobuf=3.2.0 hdf5 openblas
+RUN conda install -y mkl-service
 RUN python -m pip install --upgrade msgpack python-dateutil pytest
 RUN conda install -c mvn libsnappy
 
