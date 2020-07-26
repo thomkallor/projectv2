@@ -1,7 +1,7 @@
 FROM nvidia/cuda:8.0-cudnn6-devel-ubuntu14.04
 ENV DEBIAN_FRONTEND=noninteractive
 
-ARG THEANO_VERSION=rel-0.8.2
+ARG THEANO_VERSION=master
 ARG TENSORFLOW_VERSION=0.6.0
 ARG TENSORFLOW_ARCH=gpu
 ARG LASAGNE_VERSION=master
@@ -54,7 +54,6 @@ RUN python -m pip install \
 		Cython \
 		path.py \
 		Pillow \
-		jupyter \
 		pygments \
 		sphinx \
         wheel
@@ -132,7 +131,7 @@ RUN cd /usr/local/libgpuarray && python setup.py build && python setup.py instal
 RUN ldconfig
 
 # Install Theano and set up Theano config (.theanorc) for CUDA and OpenBLAS
-RUN pip --no-cache-dir install git+git://github.com/Theano/Theano.git@${master}
+RUN pip --no-cache-dir install git+git://github.com/Theano/Theano.git@${THEANO_VERSION}
 
 ## set theano default to cuda
 ENV THEANO_FLAGS=mode=FAST_RUN,device=cuda,floatX=float32
@@ -227,6 +226,7 @@ RUN cd tensorflow-0.6.0-py3.5 && python -m pip install tensorflow-0.6.0-py3-none
 RUN rm -rf tensorflow-0.6.0-py3.5
 
 RUN conda install mkl-service
+RUN python -m pip install notebook
 # Set up notebook config
 COPY jupyter_notebook_config.py /root/.jupyter/
 

@@ -89,7 +89,7 @@ ENV PYCAFFE_ROOT=$CAFFE_ROOT/python
 ENV PYTHONPATH=$PYCAFFE_ROOT:$PYTHONPATH \
 	PATH=$CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
 RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
-ENV CONDA_DEFAULT_ENV base
+ENV CONDA_DEFAULT_ENV root
 
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 75 && \
 	update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 100
@@ -97,10 +97,9 @@ RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 75 && \
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 75 && \
 	update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 100
 
-ENV CONDA_DEFAULT_ENV base
-RUN python -m pip install jupyter
 
 RUN conda install scikit-image
+RUN python -m pip install notebook
 
 # Set up notebook config
 COPY jupyter_notebook_config.py /root/.jupyter/

@@ -38,7 +38,7 @@ ENV PATH="/usr/local/miniconda${PYTHON}/bin:${PATH}"
 
 ## Required by theano & some useful packages
 RUN conda install cmake cython numpy scipy python-dateutil scikit-image
-RUN python -m pip install msgpack pydot-ng parameterized mako jupyter
+RUN python -m pip install msgpack pydot-ng parameterized mako
 
 RUN git clone https://github.com/Theano/libgpuarray.git /usr/local/libgpuarray
 RUN cd /usr/local/libgpuarray && git checkout tags/v0.7.6 -b v0.7.6
@@ -112,8 +112,9 @@ ENV PYCAFFE_ROOT=$CAFFE_ROOT/python
 ENV PYTHONPATH=$PYCAFFE_ROOT:$PYTHONPATH \
 	PATH=$CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
 RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
-ENV CONDA_DEFAULT_ENV base
+ENV CONDA_DEFAULT_ENV root
 
+RUN python -m pip install notebook
 # Set up notebook config
 COPY jupyter_notebook_config.py /root/.jupyter/
 
