@@ -63,6 +63,7 @@ RUN python -m pip install \
         wheel
 
 ## pytorch dependencies & useful softwares
+RUN conda install notebook
 RUN conda install -c intel mkl boost=1.61.0
 RUN conda install -c menpo opencv3
 RUN conda install -y numpy ninja scipy pyyaml setuptools cmake cffi
@@ -225,8 +226,7 @@ ENV LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64:$LD_LIBRARY_PATH
 RUN pip install --no-cache-dir install \
 	https://storage.googleapis.com/tensorflow/linux/${TENSORFLOW_ARCH}/tensorflow-${TENSORFLOW_VERSION}-cp27-none-linux_x86_64.whl
 
-# RUN conda install -c intel mkl boost=1.61.0
-RUN conda install mkl-service notebook
+RUN conda install mkl-service
 
 # Set up notebook config
 COPY jupyter_notebook_config.py /root/.jupyter/
