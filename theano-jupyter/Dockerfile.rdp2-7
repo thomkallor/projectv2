@@ -1,4 +1,4 @@
-FROM kallor/allinone:luatorch-py2-7
+FROM kallor/allinone:theano-py2-7
 ENV DEBIAN_FRONTEND noninteractive
 ARG ROOT_PASSWORD="password"
 
