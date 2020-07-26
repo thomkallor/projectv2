@@ -122,6 +122,7 @@ RUN	cd /usr/local && git clone https://github.com/facebook/iTorch.git && \
 
 ## Required by theano
 RUN python -m pip install msgpack pydot-ng parameterized mako
+RUN conda install -c conda-forge blas
 
 # Install Theano and set up Theano config (.theanorc) for CUDA and OpenBLAS
 RUN git clone https://github.com/Theano/libgpuarray.git /usr/local/libgpuarray
