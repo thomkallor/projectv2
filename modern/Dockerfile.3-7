@@ -98,8 +98,7 @@ RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 75 && \
 	update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 100
 
 
-RUN conda install scikit-image
-RUN python -m pip install notebook
+RUN conda install scikit-image notebook
 
 # Set up notebook config
 COPY jupyter_notebook_config.py /root/.jupyter/

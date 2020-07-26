@@ -226,8 +226,7 @@ RUN pip install --no-cache-dir install \
 	https://storage.googleapis.com/tensorflow/linux/${TENSORFLOW_ARCH}/tensorflow-${TENSORFLOW_VERSION}-cp27-none-linux_x86_64.whl
 
 # RUN conda install -c intel mkl boost=1.61.0
-RUN conda install mkl-service
-RUN python -m pip install notebook
+RUN conda install mkl-service notebook
 
 # Set up notebook config
 COPY jupyter_notebook_config.py /root/.jupyter/

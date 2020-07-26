@@ -88,9 +88,8 @@ ENV PYTHONPATH=$PYCAFFE_ROOT:$PYTHONPATH \
 RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
 ENV CONDA_DEFAULT_ENV root
 
-RUN python -m pip install notebook
-## latest toranado raises isuue with jupyter
-RUN conda install tornado=4.5.3
+## latest toranado raises isuue with jupyter, downgrade to 4.5.3
+RUN conda install mkl-service notebook
 
 # Set up notebook config
 COPY jupyter_notebook_config.py /root/.jupyter/
