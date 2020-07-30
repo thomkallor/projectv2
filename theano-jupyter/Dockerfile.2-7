@@ -47,6 +47,7 @@ RUN apt-get update && apt-get install -y libcudnn6-dev
 RUN rm libcudnn6_6.0.21-1+cuda8.0_amd64.deb && \
 	rm libcudnn6-dev_6.0.21-1+cuda8.0_amd64.deb
 
+ENV LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LIBRARY_PATH
 ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
 
 RUN git clone https://github.com/Theano/libgpuarray.git
