@@ -81,7 +81,7 @@ RUN cd /usr/local/pytorch && python setup.py install
 RUN rm -rf /usr/local/pytorch
 
 ## can be used if torchvision is needed
-## RUN python -m pip install torchvision==0.1.9
+## RUN python -m pip install torchvision==0.2.1
 
 # Install Torch
 RUN git clone --recursive https://github.com/torch/distro.git /usr/local/torch && \
