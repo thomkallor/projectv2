@@ -113,6 +113,7 @@ ENV PYTHONPATH=$PYCAFFE_ROOT:$PYTHONPATH \
 	PATH=$CAFFE_ROOT/build/tools:$PYCAFFE_ROOT:$PATH
 RUN echo "$CAFFE_ROOT/build/lib" >> /etc/ld.so.conf.d/caffe.conf && ldconfig
 ENV CONDA_DEFAULT_ENV root
+RUN bin/bash -c 'source activate root'
 
 RUN conda install mkl-service notebook
 # Set up notebook config
